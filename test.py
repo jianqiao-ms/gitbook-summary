@@ -1,11 +1,14 @@
 import os
 import re
 
-content = []
+os.chdir('/home/jianqiao/Workspace/shangwei.gitlab.shangweiec.com')
+doc_root = os.getcwd()
 
 ignore_files = [
-    'boos.json',
+    '^\..*',
+    'book.json',
     'SUMMARY.md',
+    'README.md'
 ]
 
 ignore_dirs = [
@@ -13,61 +16,81 @@ ignore_dirs = [
     '^[^a-zA-Z0-9]'
 ]
 
-def list_files(startpath):
 
-    for root, dirs, files in os.walk(startpath):
+class Doc(object):
+    def __init__(self, path):
+        self.root = path
+        self.children = os.listdir(self.root)
+        self.name = self.get_name() if self.get_name() else None
+        self.level = 0
+        self.files = []
+        self.subdirs = []
 
-        basename = root.replace(startpath, '')
+        self.start()
 
-        if basename:
-            if not re.compile('[a-zA-Z0-9]').match(basename[0]):
-                continue
+    def start(self):
 
-        level = basename.count(os.sep) + 1
 
-        if level != 0 :
-            line = (level - 1)*2*' ' + '*' + ' ' + '[' + os.path.basename(root) + ']' + '('+ os.path.basename(root) +'/README.md )'
-            content.append(line)
+        self.files = self.get_files()
 
-        for f in files:
+        for dir in self.get_subdirs():
+            self.subdirs.append(Doc(os.path.join(self.root,dir)))
 
-            if not re.compile('[a-zA-Z0-9]').match(os.path.basename(f)[0]):
-                continue
-
-            if f == 'README.md':
-                continue
-
-            line = level*2*' ' + '*' + ' ' + '[' + f +']' + '('+basename+'/' + f  +' )'
-            content.append(line)
+        for dir in self.subdirs:
+            dir.start()
 
 
 
+    def get_name(self):
+        readme = os.path.join(self.root, 'README.md')
+        if os.path.isfile(readme):
+            with open(readme, 'r') as fp:
+                first_line = fp.readline()
 
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
+            p = './*name\s*:\s*(?P<dname>.*).\s*-->*'
 
-        basename = root.replace(startpath, '')[1:]
-
-
-        if basename:
-            ignore = False
-            for r in ignore_dirs:
-                if re.compile(r).match(basename):
-                    ignore = True
-                    break
-            if ignore == True:
-               continue
-            print(basename)
-
-list_files('/home/jianqiao/Workspace/shangwei.gitlab.shangweiec.com')
-# list_files('/home/jianqiao/Workspace/test')
+            try:
+                dname = re.search(p , first_line).groupdict()['dname']
+                return dname
+            except:
+                return None
+                pass
 
 
-# for line in content:
-#     print(line)
+    def get_files(self):
+        def file_filter(file):
+            for p in ignore_files:
+                if re.compile(p).match(file):
+                    return None
+            return file
 
-fp = open(os.path.join('/home/jianqiao/Workspace/shangwei.gitlab.shangweiec.com','SUMMARY.md'), 'w')
-for line in content:
-    fp.write(line)
-    fp.write('\n')
-fp.close()
+        return list(filter(file_filter, list(filter(lambda x: x if os.path.isfile(os.path.join(self.root, x)) else None, self.children))))
+
+    def get_subdirs(self):
+        def dir_filter(dir):
+            for p in ignore_dirs:
+                if re.compile(p).match(dir):
+                    return None
+            return dir
+
+        return list(filter(dir_filter, list(filter(lambda x: x if os.path.isdir(os.path.join(self.root, x)) else None, self.children))))
+
+    def walk(self):
+        for file in self.files:
+            print(file)
+        for subdir in self.subdirs:
+            subdir.walk()
+
+class file(object):
+    def __init__(self):
+        self.level = 0
+        self.name = ''
+        self.link = ''
+
+
+doc = Doc(os.getcwd())
+doc.start()
+doc.walk()
+
+
+
