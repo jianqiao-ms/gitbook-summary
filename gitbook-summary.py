@@ -4,7 +4,6 @@
 import os
 import re
 
-os.chdir('/home/jianqiao/Workspace/shangwei.gitlab.shangweiec.com')
 doc_root = os.getcwd()
 
 ignore_files = [
@@ -65,7 +64,6 @@ class Doc(object):
             if self.level > 0:
                 SUMMARY.append((self.level + 1) * 2 * ' ' + '* ' + '[{}]({})'.format(file, os.path.join(self.root.replace(doc_root, '')[1:], file)))
             else:
-                # return('* ' + '[{}]({})'.format(file, file))
                 SUMMARY.append('* ' + '[{}]({})'.format(file, file))
         for subdir in self.subdirs:
             subdir.walk()
