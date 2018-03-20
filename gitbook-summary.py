@@ -9,6 +9,7 @@ doc_root = os.getcwd()
 ignore_files = [
     '^\..*',
     'book.json',
+    'GLOSSARY.md',
     'SUMMARY.md',
     'README.md'
 ]
