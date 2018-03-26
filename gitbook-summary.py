@@ -15,6 +15,7 @@ ignore_files = [
 ]
 
 ignore_dirs = [
+    'style',
     'node_modules',
     '^[^a-zA-Z0-9]'
 ]
