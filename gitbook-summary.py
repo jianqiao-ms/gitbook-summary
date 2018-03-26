@@ -29,7 +29,9 @@ class Doc(object):
     def __init__(self, path, level=0):
         self.root = path
         self.children = os.listdir(self.root)
-        self.name = self.get_name() if self.get_name() else os.path.basename(self.root)
+        self.basename = self.root.replace(doc_root, '')[1:]
+        self.name = self.get_name() if self.get_name() else self.basename
+        self.link = os.path.join(self.root.replace(doc_root, '')[1:], 'README.md')
         self.level = level
         self.files = []
         self.subdirs = []
@@ -41,7 +43,7 @@ class Doc(object):
             lambda f: f if not len(list(filter(lambda p: p if re.compile(p).match(f) else None, ignore_files))) else None,
             filter(lambda f:f if os.path.isfile(os.path.join(self.root,f)) else None, self.children)
         ):
-            self.files.append(File(self.root.replace(doc_root, '')[1:], file, self.level))
+            self.files.append(File(self.basename, file, self.level))
 
         for dir in filter(
             lambda d: d if not len(list(filter(lambda p: p if re.compile(p).match(d) else None, ignore_dirs))) else None,
@@ -66,12 +68,11 @@ class Doc(object):
                 pass
 
     def walk(self):
-        if self.level > 0:
-            SUMMARY.append((self.level -1 ) * 2 * ' ' + '* ' + '[{}]({})'.format(self.name, os.path.join(self.root.replace(doc_root, '')[1:], 'README.md')))
+        SUMMARY.append((self.level-1) * 2 * ' ' + '* ' + '[{}]({})'.format(self.name, self.link, 'README.md'))
 
         for file in self.files:
-            if self.level > 0:
-                SUMMARY.append((file.level + 1) * 2 * ' ' + '* ' + '[{}]({})'.format(file.name, file.link))
+            if file.level > 0:
+                SUMMARY.append((file.level ) * 2 * ' ' + '* ' + '[{}]({})'.format(file.name, file.link))
             else:
                 SUMMARY.append('* ' + '[{}]({})'.format(file.name, file.link))
         for subdir in self.subdirs:
