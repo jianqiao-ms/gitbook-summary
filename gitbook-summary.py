@@ -4,8 +4,8 @@
 import os
 import re
 
-# doc_root = os.getcwd()
-doc_root = '/home/jianqiao/Workspace/shangwei.gitlab.shangweiec.com'
+doc_root = os.getcwd()
+# doc_root = '/home/jianqiao/Workspace/shangwei.gitlab.shangweiec.com'
 os.chdir(doc_root)
 
 ignore_files = [
