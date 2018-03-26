@@ -52,7 +52,7 @@ class Doc(object):
 
 
     def get_name(self):
-        p = './*name\s*:\s*(?P<dname>.*).\s*-->*'
+        p = '.*name\s*:\s*(?P<dname>.*)\s*-->*'
         readme = os.path.join(self.root, 'README.md')
         if os.path.isfile(readme):
             with open(readme, 'r') as fp:
@@ -84,7 +84,7 @@ class File(object):
         self.name = self.get_name() if self.get_name() else filename
 
     def get_name(self):
-        p = './*name\s*:\s*(?P<fname>.*).\s*-->*'
+        p = '.*name\s*:\s*(?P<fname>.*)\s*-->*'
         with open(self.link, 'r') as fp:
             first_line = fp.readline()
 
